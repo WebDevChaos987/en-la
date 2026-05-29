@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <title>En - La &#8658;</title>
+  
+  <style>
+  body {
+    background-color: #000;
+    color: rgb(255, 255, 255);
+    font-family: "Lucida Console", "Courier New", Times New Roman;
+    text-align: center; /* Centers the UI for a cleaner look */
+    padding-top: 50px;
+  }
+  input {
+    font-size: 18px;
+    padding: 5px;
+    width: 250px; /* Setting a fixed width via CSS */
+  }
+  button {
+    font-size: 21px;
+    height: 40px;
+    border-radius: 80px;
+    background-color: #00FF00;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+    border: none;
+    padding: 0 20px;
+    vertical-align: middle;
+  }
+  button:active {
+    background-color: #00cc00;
+  }
+  .swap {
+    background-color: rgb(255, 255, 255);
+    color: #000;
+    font-family: "Lucida Console", "Courier New", Times New Roman;
+    cursor: pointer;
+  }
+  .swap:hover {
+    background-color: #708090;
+  }
+  .swap:active {
+    background-color: rgb(50, 50, 50);
+  }
+  </style>
+</head>
+<body>
+
+  <h1 id="title" style="font-size: 10vh;">English - Latin</h1>
+  
+  <input id="leftBox" placeholder="Type to translate...">  
+  <button onclick="translateText()">&#8658;</button>  
+  <input id="rightBox" placeholder="Output...">
+  
+  <br><br>
+  
+  <button class="swap" style="height: 30px; width: 120px; font-size: 16px;" onclick="swap()">Swap</button>
+  
+  <script>
+    const apiURL = "https://api.mymemory.translated.net/get";
+
+    async function translateText() {
+      const sourceInput = document.getElementById('leftBox');
+      const targetInput = document.getElementById('rightBox');
+      const title = document.getElementById('title').innerText;
+      
+      const textToTranslate = sourceInput.value;
+      if (!textToTranslate) return;
+
+      // Check title to see which direction we are going
+      let langPair = title.includes("English - Latin") ? "en|la" : "la|en";
+
+      targetInput.value = "Translating...";
+
+      try {
+        const response = await fetch(`${apiURL}?q=${encodeURIComponent(textToTranslate)}&langpair=${langPair}`);
+        const data = await response.json();
+        
+        if (data.responseData) {
+          targetInput.value = data.responseData.translatedText;
+        } else {
+          targetInput.value = "Error in translation.";
+        }
+      } catch (error) {
+        targetInput.value = "API Error.";
+        console.error(error);
+      }
+    }
+
+    function swap() {
+      const leftBox = document.getElementById('leftBox');
+      const rightBox = document.getElementById('rightBox');
+      const title = document.getElementById('title');
+
+      // 1. Swap the current text values
+      const tempText = leftBox.value;
+      leftBox.value = rightBox.value;
+      rightBox.value = tempText;
+
+      // 2. Toggle the UI Header and Placeholders
+      if (title.innerText === "English - Latin") {
+        title.innerText = "Latin - English";
+        leftBox.placeholder = "Latin text...";
+        rightBox.placeholder = "English output...";
+      } else {
+        title.innerText = "English - Latin";
+        leftBox.placeholder = "Type to translate...";
+        rightBox.placeholder = "Output...";
+      }
+    }
+  </script>
+</body>
+</html>
